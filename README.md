@@ -1,0 +1,152 @@
+<h3>USER MANUAL</h3>
+
+============
+This software is used for carrying out automated attendance updation
+and automated dissemination of questions in a classroom environment 
+taking into account the location of the students and subsequent 
+automated evaluation of responses.
+
+This automation is achieved through face detection and recognition of
+faces in a group photograph (of students in a classroom) and then dividing 
+the students in different groups according to their seating arrangement in
+the class so that no adjacent student gets the same question paper.
+
+============
+Requirements
+============
+This software requires different dependencies.
+
+##Image Processing (Face detection and recognition):
+  *OpenCV 2.4.3
+   1.First install a developer environment to install opencv.
+        sudo apt-get -y install build-essential cmake pkg-config
+   
+   2.Install image I/O libraries.
+        sudo apt-get -y install lipjpeg62-dev
+        sudo apt-get -y install libtiff4-dev libjasper-dev
+  
+   3.Install the GTK dev library.
+        sudo apt-get -y install libgtk2.0-dev
+
+   4.Install video I/O libraries.
+        sudo apt-get -y install libavcodec-dev libavformat-dev libswscale-dev lib4vl-dev
+
+   5.Install support for Firewire video cameras (OPTIONAL).
+        sudo apt-get -y install libdc1394-22-dev
+
+   6.Install video streaming libraries (OPTIONAL).
+        sudo apt-get -y install libxine-dev libgstreamer0.10-dev libgstreamer-plugins-base0.10-dev
+
+   7.Install the python development environment and the python numerical library (OPTIONAL).
+        sudo apt-get -y install python-dev python-numpy
+
+   8.Install the parallel code processing library (OPTIONAL).
+        sudo apt-get -y install libtbb-dev
+
+   9.Install the Qt dev library (OPTIONAL).
+        sudo apt-get -y install libqt4-dev
+
+   10.Download OpenCV-2.4.3 to wherever you want to compile the source.
+        mkdir xxx
+        cd xxx
+        wget http://sourceforge.net/projects/opencvlibrary/files/opencv-unix/2.4.3/Op...
+        tar -xvf OpenCV-2.4.3.tar.bz2  
+   
+   11.Create and build directory and configure opencv with cmake.
+        cd OpenCV-2.4.3
+        mkdir build
+        cd build
+        cmake -D CMAKE_BUILD_TYPE=RELEASE -D CMAKE_INSTALL_PREFIX=/usr/local -D WITH_TBB=ON -D BUILD_NEW_PYTHON_SUPPORT=ON -D WITH_V4L=ON  -D INSTALL_C_EXAMPLES=ON -D INSTALL_PYTHON_EXAMPLES=ON -D BUILD_EXAMPLES=ON -D WITH_QT=ON -D WITH_OPENGL=ON -D BUILD_SAMPLES=ON ..
+
+   12.Now compile it.
+        make
+
+   13.And finally install OpenCV.
+        sudo make install
+ 
+
+
+##Group Division (Vertex coloring of the graph - assigning different colors to each group of students)
+  *Sage v6.2
+   Make sure you have the dependencies and 5 GB of free disk space.
+
+   All Linux versions: gcc, make, m4, perl, ranlib, and tar.
+   Debian or Ubuntu systems: the dpkg-dev package.
+   Fedora or RedHat systems: the perl-ExtUtils-MakeMaker package.
+   (install these using your package manager)
+
+   1.Download the sage source tarball from the internet.
+   2.Extract the tarball:
+           tar xvf sage-6.2.tar
+   3.cd into the sage directory and type make:
+           cd sage-6.2/
+           make
+   4.Rename the sage directory:
+   	   mv sage-6.2 sage
+
+   Sage installation is not mandatory. Install it only if you want to display the seating arrangement 
+   of students in the classroom graphically.
+
+
+##Python 
+   All the programs have been written either in cpp or python.
+
+==================
+Using the software
+==================
+**First of all, open the file "facedetect" and update line no. 25 as follows : 
+           'HAAR_FRONTALFACE_ALT2': '/absolute path to your OpenCV folder/OpenCV-2.4.3/data/haarcascades/haarcascade_frontalface_alt2.xml'
+  As an example, if you install your OpenCV-2.4.3 in your Desktop folder, then  'HAAR_FRONTALFACE_ALT2' as follows:
+           'HAAR_FRONTALFACE_ALT2': '/home/mypc/Desktop/OpenCV-2.4.3/data/haarcascades/haarcascade_frontalface_alt2.xml'
+
+**Copy the two cpp files facerec_demo.cpp and stitching.cpp from project directory and paste them into the samples folder in OpenCV-2.4.3 directory.
+  Now build them again using :
+           cd OpenCV-2.4.3
+           cd build
+           cmake -D BUILD_SAMPLES=ON ..
+           sudo make install
+ 
+
+**Copy two files from <path to your opencv installation>/OpenCV-2.4.3/build/bin directory:
+   1.facerec_demo
+   2.stitching
+  and paste them in your project directory
+
+**Two input files are given to get this software working.
+   1.group_images == stores the paths of the various group images (that are to be stitched to get a single group photo)
+   2.individual_image_list == stores the paths of the the individual images of all the students along with their ids.
+
+**To achieve the desired automation, just run the following command from the command line:
+           ./command.sh group_images individual_image_list
+
+**It is recommended to install sage software in the "project" directory (the sage directory should be inside the project directory).
+  If it is not in the "project" directory, then update line 44 in "command.sh" and uncomment the commands specified to get sage working.
+
+**The software uses certain intermediate file whose decription is given in command.sh.
+
+==============
+Steps involved
+==============
+   1.Panoramic stitching of group photos (in group_images file)
+   2.Face detection in individual photographs (in individual_image_list)
+   3.Face detection in group photograph ("panorama.jpg" <-> obtained from step 1)
+   4.Face recognition (of faces extracted from group photographs with the individual faces)
+   5.Adjacency matrix generation (for dividing students in differnt groups so that no adjacent student lies in the same group)
+   6.Preparing different assignments for each group.
+   7.Evaluation part (using auto multiple choice software is still being done)
+
+===================================
+Algorithm used for face recognition
+===================================
+Face recognition uses Eigen face algorithm. 
+
+======
+Output
+======
+The assignments (in html format) for the separate groups are present inside the assignments directory in the project directory.
+
+====
+Note
+====
+The manual does not contain any information regarding the evaluation part.
+It will be updated asap.
